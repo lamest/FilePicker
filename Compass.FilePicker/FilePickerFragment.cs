@@ -1,34 +1,14 @@
-// <copyright file="FilePickerFragment.cs" company="Compass Informatics Ltd.">
-// Copyright (c) Compass Informatics 2014, All Right Reserved, http://compass.ie/
-//
-// This source is subject to the MIT License.
-// Please see the License file for more information.
-// All other rights reserved.
-//
-// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
-// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
-// </copyright>
-// <author>Michele Scandura</author>
-// <email>mscandura@compass.ie</email>
-// <date>30-04-2014</date>
-// <summary>Contains a simple Point with floating coordinates.</summary>
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
 using Android.App;
 using Android.OS;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
-
 using Java.Lang;
-
+using Debug = System.Diagnostics.Debug;
 using Enum = System.Enum;
 using Environment = Android.OS.Environment;
 using Exception = System.Exception;
@@ -37,7 +17,7 @@ using File = Java.IO.File;
 namespace Compass.FilePicker
 {
     /// <summary>
-    /// A DialogFragment that will show the files and subdirectories of a given directory.
+    ///     A DialogFragment that will show the files and subdirectories of a given directory.
     /// </summary>
     public class FilePickerFragment : DialogFragment
     {
@@ -46,32 +26,22 @@ namespace Compass.FilePicker
         private const string ArgMode = "ArgMode";
         private const string LogTag = "Compass.FilePicker.FileListFragment";
         private const string KeyCurrentDirectory = "KeyCurrentDirectory";
+        private FileListAdapter adapter;
 
         private Button btnCancel;
         private Button btnConfirm;
-        private DirectoryInfo currentDirectory;
-        private File selectedFile;
-        private FileListAdapter adapter;
-        private FilePickerMode filePickerMode;
         private ImageButton btnCreateFolder;
         private ImageButton btnLevelUp;
-        private ListView listFiles;
+        private DirectoryInfo currentDirectory;
         private FilePickerFileObserver fileObserver;
+        private FilePickerMode filePickerMode;
         private string initialDirectory;
+        private ListView listFiles;
         private string newDirectoryName;
+        private File selectedFile;
 
         /// <summary>
-        /// Occurs when the user press the Confirm button.
-        /// </summary>
-        public event FileSelectedEventHandler FileSelected;
-
-        /// <summary>
-        /// Occurs when the user press the Cancel button.
-        /// </summary>
-        public event CancelEventHandler Cancel;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FilePickerFragment"/> class.
+        ///     Initializes a new instance of the <see cref="FilePickerFragment" /> class.
         /// </summary>
         public FilePickerFragment()
             : this(null, null)
@@ -79,7 +49,7 @@ namespace Compass.FilePicker
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FilePickerFragment"/> class.
+        ///     Initializes a new instance of the <see cref="FilePickerFragment" /> class.
         /// </summary>
         /// <param name="initialDir">The initial dirrectory.</param>
         /// <param name="mode">The filepicker mode.</param>
@@ -89,7 +59,7 @@ namespace Compass.FilePicker
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FilePickerFragment"/> class.
+        ///     Initializes a new instance of the <see cref="FilePickerFragment" /> class.
         /// </summary>
         /// <param name="initialDir">The initial dirrectory.</param>
         /// <param name="newDirName">Default name for new folders.</param>
@@ -99,9 +69,19 @@ namespace Compass.FilePicker
             var args = new Bundle();
             args.PutString(ArgNewDirectoryName, newDirName ?? string.Empty);
             args.PutString(ArgInitialDir, initialDir ?? string.Empty);
-            args.PutInt(ArgMode, (int)mode);
+            args.PutInt(ArgMode, (int) mode);
             Arguments = args;
         }
+
+        /// <summary>
+        ///     Occurs when the user press the Confirm button.
+        /// </summary>
+        public event FileSelectedEventHandler FileSelected;
+
+        /// <summary>
+        ///     Occurs when the user press the Cancel button.
+        /// </summary>
+        public event CancelEventHandler Cancel;
 
         /// <inheritdoc />
         public override void OnCreate(Bundle savedInstanceState)
@@ -114,7 +94,7 @@ namespace Compass.FilePicker
 
             newDirectoryName = Arguments.GetString(ArgNewDirectoryName);
             initialDirectory = Arguments.GetString(ArgInitialDir);
-            filePickerMode = (FilePickerMode)Arguments.GetInt(ArgMode);
+            filePickerMode = (FilePickerMode) Arguments.GetInt(ArgMode);
 
             if (savedInstanceState != null)
             {
@@ -134,7 +114,7 @@ namespace Compass.FilePicker
         /// <inheritdoc />
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            System.Diagnostics.Debug.Assert(Activity != null, "Activity != null");
+            Debug.Assert(Activity != null, "Activity != null");
             var view = inflater.Inflate(Resource.Layout.filepicker_fragment, container, false);
 
             btnConfirm = view.FindViewById<Button>(Resource.Id.btnConfirm);
@@ -290,9 +270,9 @@ namespace Compass.FilePicker
                                 dir.GetFileSystemInfos()
                                     .Where(
                                         item =>
-                                        item.IsVisible() && item.IsDirectory()
-                                        && (item.Attributes & FileAttributes.System) != FileAttributes.System
-                                        && (item.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden))
+                                            item.IsVisible() && item.IsDirectory()
+                                            && (item.Attributes & FileAttributes.System) != FileAttributes.System
+                                            && (item.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden))
                             {
                                 try
                                 {
@@ -342,10 +322,10 @@ namespace Compass.FilePicker
 
         private void UpdateSelectedFileText()
         {
-			if (View == null) 
-			{
-				return;
-			}
+            if (View == null)
+            {
+                return;
+            }
 
             var textView = View.FindViewById<TextView>(Resource.Id.txtvSelectedFolder);
             if (textView == null)
@@ -392,9 +372,9 @@ namespace Compass.FilePicker
                 (s, e) =>
                 {
                     CreateFolder(currentDirectory.FullName, editText.Text);
-                    ((AlertDialog)s).Dismiss();
+                    ((AlertDialog) s).Dismiss();
                 });
-            builder.SetNegativeButton(GetString(Resource.String.filepicker_cancel_label), (s, e) => ((AlertDialog)s).Dismiss());
+            builder.SetNegativeButton(GetString(Resource.String.filepicker_cancel_label), (s, e) => ((AlertDialog) s).Dismiss());
             builder.Create().Show();
         }
 
@@ -489,26 +469,25 @@ namespace Compass.FilePicker
         private void CreateFileObserver(string path)
         {
             // FileObserverEvents.Create | FileObserverEvents.Delete | FileObserverEvents.MovedFrom | FileObserverEvents.MovedTo;
-            const FileObserverEvents Mask = FileObserverEvents.Create | FileObserverEvents.Delete | FileObserverEvents.MovedFrom | FileObserverEvents.MovedTo | (FileObserverEvents)0x40000000;
+            const FileObserverEvents Mask = FileObserverEvents.Create | FileObserverEvents.Delete | FileObserverEvents.MovedFrom | FileObserverEvents.MovedTo | (FileObserverEvents) 0x40000000;
             Console.WriteLine(Mask.ToString());
             fileObserver = new FilePickerFileObserver(path, Mask);
             fileObserver.OnFileEvent += (events, s) =>
+            {
+                LogDebug(string.Format("FileObserver event received - {0}", events));
+                if ((events & (FileObserverEvents) 0x40000000) == (FileObserverEvents) 0x40000000)
                 {
-                    LogDebug(string.Format("FileObserver event received - {0}", events));
-                    if ((events & (FileObserverEvents)0x40000000) == (FileObserverEvents)0x40000000)
+                    Console.WriteLine("Folder event");
+                }
+                events &= FileObserverEvents.AllEvents;
+                var eventName = Enum.GetName(typeof(FileObserverEvents), events);
+                Console.WriteLine(eventName);
+                if ((events & Mask) == events)
+                    if (Activity != null)
                     {
-                        Console.WriteLine("Folder event");
+                        Activity.RunOnUiThread(RefreshFilesList);
                     }
-                    events &= FileObserverEvents.AllEvents;
-                    var eventName = Enum.GetName(typeof(FileObserverEvents), events);
-                    Console.WriteLine(eventName);
-                    if ((events & Mask) == events)
-                        if (Activity != null)
-                        {
-                            Activity.RunOnUiThread(RefreshFilesList);
-                        }
-
-                };
+            };
         }
     }
 }
